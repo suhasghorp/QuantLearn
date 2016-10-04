@@ -1,5 +1,7 @@
 package com.quantlearn.utils;
 
+import java.util.List;
+
 public class FormulaUtil {
 	
 	public static double DFsimple(double yf, double simpleRate) {            
@@ -22,6 +24,21 @@ public class FormulaUtil {
          // Par Rate
         return up / down;
     }
+	
+	
+	public static double[] DFSimpleList(List<Double> yf, double[] simpleRate) 
+    {
+         // yf and simpleRate array should have same size
+        int n = yf.size();
+        double[] Df = new double[n];  // array of df
+        Df[0] = DFsimple(yf.get(0), simpleRate[0]);  // first DF
+        for (int i = 1; i < n; i++) 
+        {
+            Df[i] = DFsimple(yf.get(i), simpleRate[i]) * Df[i - 1];  // df_0_i = df_0_i-1 * df_i-1_i;
+        }
+        return Df;
+    }
+	
 	public static double multiCurveParRate(double[] yfFloatLeg, double[] dfFloatLeg, double[] fwdFloatLeg,double[] yfFixLeg,double[] dfFixLeg) throws Exception {
          // number of floating leg elements. 
         int nFlt = yfFloatLeg.length; // yfFloatLeg,dfFloatLeg,fwdFloatLeg should have same number of elements
