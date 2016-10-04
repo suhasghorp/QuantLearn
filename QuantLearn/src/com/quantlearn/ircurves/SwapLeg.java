@@ -1,4 +1,4 @@
-package com.quantlearn.curves;
+package com.quantlearn.ircurves;
 
 import com.quantlearn.enums.BusinessDayAdjustment;
 import com.quantlearn.enums.DC;

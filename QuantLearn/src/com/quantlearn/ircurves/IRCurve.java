@@ -1,7 +1,7 @@
-package com.quantlearn.curves;
+package com.quantlearn.ircurves;
 
 import com.quantlearn.schedule.BusDate;
 
-public interface Curve {
+public interface IRCurve {
 	double getDiscFactorForDate(BusDate d);
 }

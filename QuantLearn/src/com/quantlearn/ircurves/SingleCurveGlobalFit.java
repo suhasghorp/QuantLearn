@@ -1,4 +1,4 @@
-package com.quantlearn.curves;
+package com.quantlearn.ircurves;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import com.quantlearn.utils.FormulaUtil;
 
 import net.finmath.optimizer.LevenbergMarquardt;
 
-public class SingleCurveGlobalFit implements Curve {
+public class SingleCurveGlobalFit implements IRCurve {
 	private BusDate refDate;
 	TreeMap<Double,Double> allDateDFMap = new TreeMap<Double,Double>();
 	TreeMap<Double,Double> edfswapDateDFMap = new TreeMap<Double,Double>();
@@ -27,14 +27,14 @@ public class SingleCurveGlobalFit implements Curve {
 	BaseInterpolator interp = null;
 	
 	@SuppressWarnings("unchecked")
-	public SingleCurveGlobalFit(BusDate today, ImmutableList<CurveInstrument> instruments, InterpolateOnWhat w, BaseInterpolator interp) throws Exception {
+	public SingleCurveGlobalFit(BusDate today, ImmutableList<IRCurveInstrument> instruments, InterpolateOnWhat w, BaseInterpolator interp) throws Exception {
 		this.w = w;
 		this.interp = interp;
 		refDate = RefDateUtils.getRefDate();
-		List<CurveInstrument> edfswaps = instruments.stream()
+		List<IRCurveInstrument> edfswaps = instruments.stream()
 				.filter(i -> i.getCurveInstrumentType() == CurveInstrumentType.SWAP
 				|| i.getCurveInstrumentType() == CurveInstrumentType.EDF)
-				.map(instrument -> ((CurveInstrument)instrument))
+				.map(instrument -> ((IRCurveInstrument)instrument))
 				.collect(Collectors.toList());
 			
 		allDateDFMap.put(today.getExcelSerial(), w.fromDfToInterp(1.0));
@@ -84,7 +84,7 @@ public class SingleCurveGlobalFit implements Curve {
         return w.fromInterpToDf(interpDF);
 	}
 	
-	public double calcParRate(CurveInstrument instr) {
+	public double calcParRate(IRCurveInstrument instr) {
 		double output = 0;
 		if (instr instanceof VanillaSwap) {
 			VanillaSwap swap = (VanillaSwap)instr;

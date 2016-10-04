@@ -1,14 +1,14 @@
 package com.quantlearn.utils;
 
 import com.quantlearn.caching.RefDateUtils;
-import com.quantlearn.curves.SwapLeg;
-import com.quantlearn.curves.VanillaSwap;
 import com.quantlearn.enums.BusinessDayAdjustment;
 import com.quantlearn.enums.BuySell;
 import com.quantlearn.enums.DC;
 import com.quantlearn.enums.FixFloat;
 import com.quantlearn.enums.Pay;
 import com.quantlearn.enums.Rule;
+import com.quantlearn.ircurves.SwapLeg;
+import com.quantlearn.ircurves.VanillaSwap;
 import com.quantlearn.schedule.BusDate;
 import com.quantlearn.schedule.Schedule;
 

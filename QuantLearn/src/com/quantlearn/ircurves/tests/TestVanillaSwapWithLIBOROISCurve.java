@@ -1,4 +1,4 @@
-package com.quantlearn.curves.tests;
+package com.quantlearn.ircurves.tests;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,17 +23,6 @@ import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 import com.quantlearn.caching.CacheBuilderHelper;
 import com.quantlearn.caching.CacheManager;
 import com.quantlearn.caching.RefDateUtils;
-import com.quantlearn.curves.Curve;
-import com.quantlearn.curves.CurveInstrument;
-import com.quantlearn.curves.Deposit;
-import com.quantlearn.curves.DepositON;
-import com.quantlearn.curves.DepositTN;
-import com.quantlearn.curves.EuroDollarFuture;
-import com.quantlearn.curves.MultiCurveGlobalFit;
-import com.quantlearn.curves.SingleCurveGlobalFit;
-import com.quantlearn.curves.SwapLeg;
-import com.quantlearn.curves.VanillaSwap;
-import com.quantlearn.curves.tests.TestVanillaSwapWithLIBORCurve.LinearInterp;
 import com.quantlearn.enums.BusinessDayAdjustment;
 import com.quantlearn.enums.BuySell;
 import com.quantlearn.enums.CurveInstrumentType;
@@ -46,25 +35,35 @@ import com.quantlearn.schedule.Schedule;
 import com.quantlearn.utils.FormulaUtil;
 import com.quantlearn.utils.VanillaSwapUtils;
 import com.quantlearn.interpolation.*;
+import com.quantlearn.ircurves.IRCurve;
+import com.quantlearn.ircurves.IRCurveInstrument;
+import com.quantlearn.ircurves.Deposit;
+import com.quantlearn.ircurves.DepositON;
+import com.quantlearn.ircurves.DepositTN;
+import com.quantlearn.ircurves.EuroDollarFuture;
+import com.quantlearn.ircurves.MultiCurveGlobalFit;
+import com.quantlearn.ircurves.SingleCurveGlobalFit;
+import com.quantlearn.ircurves.SwapLeg;
+import com.quantlearn.ircurves.VanillaSwap;
+import com.quantlearn.ircurves.tests.TestVanillaSwapWithLIBORCurve.LinearInterp;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class TestVanillaSwapWithLIBOROISCurve {
 	public static String newline = System.getProperty("line.separator");	
-	public ImmutableList<CurveInstrument> instruments = null;
+	public ImmutableList<IRCurveInstrument> instruments = null;
 	public static BusDate today = new BusDate(2016,7,13);
-	public List<CurveInstrument> cinstruments = new ArrayList<>();
-	public List<CurveInstrument> oisswaps = new ArrayList<>();
+	public List<IRCurveInstrument> cinstruments = new ArrayList<>();
+	public List<IRCurveInstrument> oisswaps = new ArrayList<>();
 	
 	public static void main(String[] args) {
 		try {
-			CacheBuilderHelper.buildHolidayCache("UK+NYSE");
+			CacheBuilderHelper.cacheCalendarName("NYSE");
+			CacheBuilderHelper.buildHolidayCache();
 			TestVanillaSwapWithLIBOROISCurve s = new TestVanillaSwapWithLIBOROISCurve();
 			BusDate refDate = today.shiftPeriod("2D", BusinessDayAdjustment.ModifiedFollowing, "ADD");
 			CacheBuilderHelper.cacheRefDate(refDate);	
-			CacheBuilderHelper.buildHolidayCache("UK+NYSE");
-			CacheBuilderHelper.buildHolidayCache("UK"); //for LIBOR resets
-						
+									
 			SingleCurveGlobalFit discCurve = s.buildOISCurve(today);
 			MultiCurveGlobalFit mcurve = s.buildForwardCurve(today, discCurve);
 			BusDate settlementDate = new BusDate(2014,11,17);
@@ -289,7 +288,7 @@ public class TestVanillaSwapWithLIBOROISCurve {
 							.build();
 		return swap;
 	}
-	public double calcNPV(Curve curve, VanillaSwap swap) {
+	public double calcNPV(IRCurve curve, VanillaSwap swap) {
 		double fixedLegPV = getFixedLegPV(curve, swap);
 		double floatingLegPV = getFloatingLegPV(curve, swap);
 		double NPV = 0;
@@ -301,7 +300,7 @@ public class TestVanillaSwapWithLIBOROISCurve {
 		return NPV;
 	}
 	
-	public double getFixedLegPV(Curve curve, VanillaSwap swap) {
+	public double getFixedLegPV(IRCurve curve, VanillaSwap swap) {
 		double calcFixedLegPV = 0.00;
 		BusDate refDate = RefDateUtils.getRefDate();
 		Schedule fixedSchedule = swap.getFixedSchedule();
@@ -317,7 +316,7 @@ public class TestVanillaSwapWithLIBOROISCurve {
         return calcFixedLegPV;
 	}
 	
-	public double getFloatingLegPV(Curve curve, VanillaSwap swap) {
+	public double getFloatingLegPV(IRCurve curve, VanillaSwap swap) {
 		double calcFloatingLegPV = 0.00;
 		BusDate refDate = RefDateUtils.getRefDate();
 		Schedule floatingSchedule = swap.getFloatingSchedule();
@@ -342,7 +341,7 @@ public class TestVanillaSwapWithLIBOROISCurve {
         return calcFloatingLegPV;
 	}
 	
-	public double getParSwapRate(Curve curve, VanillaSwap swap) {
+	public double getParSwapRate(IRCurve curve, VanillaSwap swap) {
 		double parRate = 0.00;
 		BusDate refDate = RefDateUtils.getRefDate();
 		Schedule fixedSchedule = swap.getFixedSchedule();
@@ -357,26 +356,26 @@ public class TestVanillaSwapWithLIBOROISCurve {
         parRate = FormulaUtil.parRate(yfArray, df);
         return parRate;		
 	}
-	public SingleCurveGlobalFit buildShiftedCurve(CurveInstrument c) throws Exception  {
-		List<CurveInstrument> cloned = new ArrayList<>(cinstruments);
+	public SingleCurveGlobalFit buildShiftedCurve(IRCurveInstrument c) throws Exception  {
+		List<IRCurveInstrument> cloned = new ArrayList<>(cinstruments);
 		Collections.sort(cloned);
 		int index = cloned.indexOf(c);
-		CurveInstrument i = cloned.get(index);
-		CurveInstrument shiftedI = i.shiftUp1BP();
+		IRCurveInstrument i = cloned.get(index);
+		IRCurveInstrument shiftedI = i.shiftUp1BP();
 		cloned.set(index,shiftedI);
 		return new SingleCurveGlobalFit(today, ImmutableList.copyOf(cloned),new OnLogDF(),new CubicSpline());
 	}
-	public SingleCurveGlobalFit buildParallelShiftedCurve(CurveInstrument c) throws Exception  {
-		List<CurveInstrument> cloned = new ArrayList<>(cinstruments);
+	public SingleCurveGlobalFit buildParallelShiftedCurve(IRCurveInstrument c) throws Exception  {
+		List<IRCurveInstrument> cloned = new ArrayList<>(cinstruments);
 		Collections.sort(cloned);
 		int index = cloned.indexOf(c);
-		CurveInstrument i = cloned.get(index);
-		CurveInstrument shiftedI = i.shiftUp1BP();
+		IRCurveInstrument i = cloned.get(index);
+		IRCurveInstrument shiftedI = i.shiftUp1BP();
 		cloned.set(index,shiftedI);
 		instruments = ImmutableList.copyOf(cloned);
 		return new SingleCurveGlobalFit(today, instruments,new OnLogDF(),new CubicSpline());
 	}
-	public double shiftedNPV(CurveInstrument c, VanillaSwap swap) {
+	public double shiftedNPV(IRCurveInstrument c, VanillaSwap swap) {
 		double NPV = 0;	
 		try {
 			SingleCurveGlobalFit curve = buildShiftedCurve(c);
@@ -397,7 +396,7 @@ public class TestVanillaSwapWithLIBOROISCurve {
 		}*/
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		Set<Callable<Double>> callables = new HashSet<Callable<Double>>();
-		for (CurveInstrument i : cinstruments) {
+		for (IRCurveInstrument i : cinstruments) {
 			callables.add(new FractionalBPV (i,swap,NPV));
 		}
 		List<Future<Double>> futures = executorService.invokeAll(callables);
@@ -408,17 +407,17 @@ public class TestVanillaSwapWithLIBOROISCurve {
 		return totalBPV;
 	}
 	public double parallelShiftedUpNPV(VanillaSwap swap) throws Exception {
-		List<CurveInstrument> cloned = new ArrayList<>(cinstruments);
+		List<IRCurveInstrument> cloned = new ArrayList<>(cinstruments);
 		Collections.sort(cloned);
-		List<CurveInstrument> shifted = cloned.stream().map(c -> c.shiftUp1BP()).collect(Collectors.toList());
+		List<IRCurveInstrument> shifted = cloned.stream().map(c -> c.shiftUp1BP()).collect(Collectors.toList());
 		instruments = ImmutableList.copyOf(shifted);
 		SingleCurveGlobalFit c = new SingleCurveGlobalFit(today, instruments,new OnLogDF(),new CubicSpline());
 		return calcNPV(c,swap);		
 	}
 	public double parallelShiftedDownNPV(VanillaSwap swap) throws Exception {
-		List<CurveInstrument> cloned = new ArrayList<>(cinstruments);
+		List<IRCurveInstrument> cloned = new ArrayList<>(cinstruments);
 		Collections.sort(cloned);
-		List<CurveInstrument> shifted = cloned.stream().map(c -> c.shiftDown1BP()).collect(Collectors.toList());
+		List<IRCurveInstrument> shifted = cloned.stream().map(c -> c.shiftDown1BP()).collect(Collectors.toList());
 		instruments = ImmutableList.copyOf(shifted);
 		SingleCurveGlobalFit c = new SingleCurveGlobalFit(today, instruments,new OnLogDF(),new CubicSpline());
 		return calcNPV(c,swap);		
@@ -445,10 +444,10 @@ public class TestVanillaSwapWithLIBOROISCurve {
 	}
 	
 	public class FractionalBPV implements Callable<Double> {
-		CurveInstrument c;
+		IRCurveInstrument c;
 		VanillaSwap swap;
 		double NPV;
-		public FractionalBPV(CurveInstrument c,VanillaSwap swap,double NPV) {
+		public FractionalBPV(IRCurveInstrument c,VanillaSwap swap,double NPV) {
 			this.c = c;
 			this.swap = swap;
 			this.NPV = NPV;

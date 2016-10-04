@@ -1,6 +1,7 @@
-package com.quantlearn.curves;
+package com.quantlearn.ircurves;
 
 import com.quantlearn.caching.RefDateUtils;
+import com.quantlearn.enums.BusinessDayAdjustment;
 import com.quantlearn.enums.BuySell;
 import com.quantlearn.enums.CurveInstrumentType;
 import com.quantlearn.enums.Pay;
@@ -15,7 +16,7 @@ import lombok.Setter;
 
 @Builder
 @EqualsAndHashCode(exclude={"buySell", "notional", "fixedLeg", "floatingLeg", "fixedSchedule", "floatingSchedule"})
-public class VanillaSwap implements CurveInstrument{
+public class VanillaSwap implements IRCurveInstrument{
 	
 	private BusDate settleDate;     
 	private BusDate maturityDate;  
@@ -40,6 +41,10 @@ public class VanillaSwap implements CurveInstrument{
 	public BusDate getMaturityDate() {
 		return this.maturityDate;
 	}
+	@Override
+	public void setMaturityDate(String tenorString) {
+		this.maturityDate = settleDate.shiftPeriod(tenorString, BusinessDayAdjustment.Unadjusted, "ADD");	
+	}
 
 	@Override
 	public CurveInstrumentType getCurveInstrumentType() {
@@ -56,6 +61,10 @@ public class VanillaSwap implements CurveInstrument{
 	@Override
 	public double getRateValue() {
 		return fixedRate;
+	}
+	@Override
+	public void setRateValue(double fixedRate) {
+		this.fixedRate = fixedRate;
 	}
 	@Override
 	public double getLastFromDate() {
@@ -99,7 +108,7 @@ public class VanillaSwap implements CurveInstrument{
 	}
 
 	@Override
-	public int compareTo(CurveInstrument arg0) {
+	public int compareTo(IRCurveInstrument arg0) {
 		return 0;
 	}
 

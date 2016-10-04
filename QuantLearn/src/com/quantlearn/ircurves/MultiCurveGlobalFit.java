@@ -1,4 +1,4 @@
-package com.quantlearn.curves;
+package com.quantlearn.ircurves;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,13 +22,13 @@ import com.quantlearn.utils.FormulaUtil;
 
 import net.finmath.optimizer.LevenbergMarquardt;
 
-public class MultiCurveGlobalFit implements Curve {
+public class MultiCurveGlobalFit implements IRCurve {
 	private BusDate refDate;
 	BaseInterpolator interp = null;
 	SingleCurveGlobalFit discountingCurve;
 	
 	@SuppressWarnings("unchecked")
-	public MultiCurveGlobalFit(ImmutableList<CurveInstrument> instruments, SingleCurveGlobalFit discountingCurve, BaseInterpolator interp) throws Exception {
+	public MultiCurveGlobalFit(ImmutableList<IRCurveInstrument> instruments, SingleCurveGlobalFit discountingCurve, BaseInterpolator interp) throws Exception {
 		this.discountingCurve = discountingCurve;
 		this.interp = interp;
 		
@@ -37,20 +37,20 @@ public class MultiCurveGlobalFit implements Curve {
 		liborFixings.put("3M", 0.0068010);
 		liborFixings.put("6M", 0.0098010);
 		
-		List<CurveInstrument> edfswaps = instruments.stream()
+		List<IRCurveInstrument> edfswaps = instruments.stream()
 				.filter(i -> i.getCurveInstrumentType() == CurveInstrumentType.SWAP
 				|| i.getCurveInstrumentType() == CurveInstrumentType.EDF)
-				.map(instrument -> ((CurveInstrument)instrument))
+				.map(instrument -> ((IRCurveInstrument)instrument))
 				.collect(Collectors.toList());
 		
-		List<CurveInstrument> edf = instruments.stream()
+		List<IRCurveInstrument> edf = instruments.stream()
 				.filter(i -> i.getCurveInstrumentType() == CurveInstrumentType.EDF)
-				.map(instrument -> ((CurveInstrument)instrument))
+				.map(instrument -> ((IRCurveInstrument)instrument))
 				.collect(Collectors.toList());
 		
-		List<CurveInstrument> swaps = instruments.stream()
+		List<IRCurveInstrument> swaps = instruments.stream()
 				.filter(i -> i.getCurveInstrumentType() == CurveInstrumentType.SWAP)
-				.map(instrument -> ((CurveInstrument)instrument))
+				.map(instrument -> ((IRCurveInstrument)instrument))
 				.collect(Collectors.toList());
 		
 		String underlyingRateTenor = null;
@@ -64,7 +64,7 @@ public class MultiCurveGlobalFit implements Curve {
 		} else throw new Exception("Underlying tenor of the market swap not understood.");
 		
 		List<Double> edfDates = new ArrayList<>();
-		for (CurveInstrument c : edf) {
+		for (IRCurveInstrument c : edf) {
 			EuroDollarFuture e = (EuroDollarFuture)c;
 			edfDates.add(e.IMMDate.getExcelSerial());
 		}
@@ -127,7 +127,7 @@ public class MultiCurveGlobalFit implements Curve {
         return interpFwd;
 	}
 	
-	public double calcParRate(CurveInstrument instr) {
+	public double calcParRate(IRCurveInstrument instr) {
 		
 		double output = 0;
 		try {

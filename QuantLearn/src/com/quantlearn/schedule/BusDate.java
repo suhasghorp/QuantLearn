@@ -151,7 +151,7 @@ public class BusDate {
 	}
 	
 	public boolean isUKHoliday(LocalDate d) {
-		ImmutableSet<LocalDate> holidays= (ImmutableSet<LocalDate>) CacheManager.getCache(CacheManager.CACHE_IDS.UK).getIfPresent("UK");
+		ImmutableSet<LocalDate> holidays = CacheManager.getCachedUKHolidays();
 		boolean hol =  (d.getDayOfWeek() == DayOfWeek.SUNDAY || d.getDayOfWeek() == DayOfWeek.SATURDAY
 				|| holidays.contains(d));
 		if (hol) {
@@ -161,7 +161,7 @@ public class BusDate {
 	}
 
 	public boolean isHoliday(LocalDate d) {
-		ImmutableSet<LocalDate> holidays= (ImmutableSet<LocalDate>) CacheManager.getCache(CacheManager.CACHE_IDS.UKNYSE).getIfPresent("UK+NYSE");
+		ImmutableSet<LocalDate> holidays = CacheManager.getCachedHolidays();
 		boolean hol =  (d.getDayOfWeek() == DayOfWeek.SUNDAY || d.getDayOfWeek() == DayOfWeek.SATURDAY
 				|| holidays.contains(d));
 		if (hol) {
@@ -222,7 +222,8 @@ public class BusDate {
 	}
 
 	public BusDate getModFoll() {
-		ImmutableSet<LocalDate> holidays= (ImmutableSet<LocalDate>) CacheManager.getCache(CacheManager.CACHE_IDS.UKNYSE).getIfPresent("UK+NYSE");
+		//ImmutableSet<LocalDate> holidays= (ImmutableSet<LocalDate>) CacheManager.getCache(CacheManager.CACHE_IDS.HOLIDAYS).getIfPresent("HOLIDAYS");
+		ImmutableSet<LocalDate> holidays = CacheManager.getCachedHolidays();
 		if (theDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
 			if (theDate.getMonthValue() == theDate.plusDays(1).getMonthValue()) {
 				return shift(1);
@@ -235,7 +236,7 @@ public class BusDate {
 			} else {
 				return shift(-1);
 			}
-		} else if (holidays.contains(theDate)) {
+		} else if (holidays != null && holidays.contains(theDate)) {
 			BusDate temp = new BusDate();
 			if (theDate.getMonthValue() == theDate.plusDays(1).getMonthValue()) {
 				temp = shift(1);

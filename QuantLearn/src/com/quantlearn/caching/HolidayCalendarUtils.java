@@ -27,6 +27,8 @@ public class HolidayCalendarUtils {
 			holidays = generateNewYorkFed();
 		} else if ("NYSE".equals(id)) {
 			holidays = generateNewYorkStockExchange();
+		} else if ("NONE".equals(id)) {
+			//DO NOTHING
 		} else {
 			throw new NotImplementedException();
 		}

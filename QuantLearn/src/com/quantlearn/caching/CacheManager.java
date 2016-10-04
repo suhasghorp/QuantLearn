@@ -1,9 +1,12 @@
 package com.quantlearn.caching;
 
+import java.time.LocalDate;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableSet;
 
 public class CacheManager {
 	 
@@ -11,10 +14,9 @@ public class CacheManager {
      * Enum defining the different types of cache managed by the class
      */
     public enum CACHE_IDS {
-    	UKNYSE,
-    	UK,
+    	HOLIDAYS,
     	REFDATE,
-        CACHE_ID1,
+        CALENDAR,
         CACHE_ID2,
         CACHE_ID3
     }
@@ -59,5 +61,27 @@ public class CacheManager {
         }
  
         return result;
+    }
+    
+    public static ImmutableSet<LocalDate> getCachedHolidays() {
+    	ImmutableSet<LocalDate> holidays = null;
+    	LoadingCache cache = CacheManager.getCache(CacheManager.CACHE_IDS.HOLIDAYS);
+    	if (cache == null) {
+    		holidays = ImmutableSet.of();
+    	} else {
+    		holidays = (ImmutableSet<LocalDate>)cache.getIfPresent("HOLIDAYS");
+    	}
+    	return holidays;
+    }
+    
+    public static ImmutableSet<LocalDate> getCachedUKHolidays() {
+    	ImmutableSet<LocalDate> holidays = null;
+    	LoadingCache cache = CacheManager.getCache(CacheManager.CACHE_IDS.HOLIDAYS);
+    	if (cache == null) {
+    		holidays = ImmutableSet.of();
+    	} else {
+    		holidays = (ImmutableSet<LocalDate>)cache.getIfPresent("UK");
+    	}
+    	return holidays;
     }
 }

@@ -1,4 +1,4 @@
-package com.quantlearn.curves;
+package com.quantlearn.ircurves;
 
 import com.quantlearn.enums.BusinessDayAdjustment;
 import com.quantlearn.enums.CurveInstrumentType;
@@ -7,7 +7,7 @@ import com.quantlearn.schedule.BusDate;
 import com.quantlearn.schedule.Period;
 import com.quantlearn.utils.FormulaUtil;
 
-public class DepositON implements CurveInstrument {
+public class DepositON implements IRCurveInstrument {
 	public BusDate settlementDate;     // reference date, will be used in curve building
     public BusDate maturityDate;     // end date of building block
     public Period Tenor;     // tenor of building block
@@ -34,6 +34,10 @@ public class DepositON implements CurveInstrument {
 		return rateValue;
 	}
 	@Override
+	public void setRateValue(double rateValue) {
+		this.rateValue = rateValue;
+	}
+	@Override
 	public CurveInstrumentType getCurveInstrumentType() {
 		return CurveInstrumentType.DEPO;
 	}
@@ -45,6 +49,10 @@ public class DepositON implements CurveInstrument {
 	@Override
 	public BusDate getMaturityDate() {
 		return maturityDate;
+	}
+	@Override
+	public void setMaturityDate(String tenorString) {
+		this.maturityDate = settlementDate.shiftPeriod(tenorString, BusinessDayAdjustment.Unadjusted, "ADD");	
 	}
 	@Override
 	public double getLastFromDate() {
@@ -59,7 +67,7 @@ public class DepositON implements CurveInstrument {
 		return new DepositON(this.settlementDate, this.rateValue - 0.0001, this.Tenor.getPeriodStringFormat());
 	}
 	@Override
-	public int compareTo(CurveInstrument arg0) {
+	public int compareTo(IRCurveInstrument arg0) {
 		return 0;
 	}
 	@Override

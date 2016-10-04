@@ -53,4 +53,27 @@ public class FormulaUtil {
          // par rate
         return numerator / denominator;
     }
+	
+	// Hagan. P.S. and West, G. 2006. Formula 3)
+    public static double finalDF(double parRate, double[] yearFraction, double[] DF) 
+    {
+         // DF element should be >= YearFractionElement-1
+        double up = 0.0;              // numerator
+        double down = 0.0;            // denominator
+        int n = yearFraction.length - 1;  // max size  of YearFraction
+                                              // it uses only n-1 DF, since DF[n] is the one to find
+
+         // numerator
+        for (int i = 0; i < n; i++)
+        {
+            up += yearFraction[i] * DF[i];
+        }
+        up = 1 - parRate * up;
+
+         // Denominator
+        down = 1 + parRate * yearFraction[n];
+        
+        return up/down;            
+    }
+	
 }

@@ -1,4 +1,4 @@
-package com.quantlearn.curves;
+package com.quantlearn.ircurves;
 
 import java.time.YearMonth;
 import java.time.format.TextStyle;
@@ -12,7 +12,7 @@ import com.quantlearn.enums.DC;
 import com.quantlearn.schedule.BusDate;
 import com.quantlearn.schedule.Period;
 
-public class EuroDollarFuture implements CurveInstrument {
+public class EuroDollarFuture implements IRCurveInstrument {
 	public BusDate endDate;     // end date of building block
     public Period Tenor;     // tenor of building block
     public double rateValue; // rate value of building block    
@@ -50,6 +50,10 @@ public class EuroDollarFuture implements CurveInstrument {
 	public double getRateValue() {
 		return getDiscountFactor();
 	}
+	@Override
+	public void setRateValue(double rateValue) {
+		this.rateValue = rateValue;
+	}
 	public double calcPrice() {
 		return 100 - (this.rateValue * 100);
 	}
@@ -79,6 +83,10 @@ public class EuroDollarFuture implements CurveInstrument {
 		return this.endDate;
 	}
 	@Override
+	public void setMaturityDate(String tenorString) {
+		this.endDate = IMMDate.shiftPeriod(tenorString, BusinessDayAdjustment.Unadjusted, "ADD");	
+	}
+	@Override
 	public double getLastFromDate() {
 		return this.IMMDate.getExcelSerial();
 	}
@@ -92,7 +100,7 @@ public class EuroDollarFuture implements CurveInstrument {
 		return new EuroDollarFuture(this.price + 0.0001, this.month, this.year, this.interp);
 	}
 	@Override
-	public int compareTo(CurveInstrument arg0) {
+	public int compareTo(IRCurveInstrument arg0) {
 		return 0;
 	}
 	@Override
